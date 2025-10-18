@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kreislogo Pro v5.3.7 FINAL</title>
+<style>
+:root{--ink:#0f172a;--bg:#f1f5f9;--card:#fff;--muted:#64748b;--acc:#2563eb;--sb-track:#e2e8f0;--sb-thumb:#94a3b8}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+/* Global scrollbar styling */
+.scrollbar{scrollbar-width:thin;scrollbar-color:var(--sb-thumb) var(--sb-track)}
+.scrollbar::-webkit-scrollbar{height:12px;width:12px}
+.scrollbar::-webkit-scrollbar-thumb{background:var(--sb-thumb);border-radius:8px;border:2px solid var(--sb-track)}
+.scrollbar::-webkit-scrollbar-track{background:var(--sb-track);border-radius:8px}
+
+.appbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:8px}.brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(45deg,#22c55e,#06b6d4)}.brand h1{margin:0;font-size:18px}.brand .sub{color:#334155}
+.app-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.projname{padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;min-width:220px}
+button{padding:10px 14px;border-radius:10px;border:1px solid #0f172a;background:#0f172a;color:#fff;cursor:pointer}
+button.ghost{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
+button.danger{border-color:#ef4444;color:#ef4444;background:#fff}
+button.icon{width:40px;height:40px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:520px 1fr;gap:16px;padding:16px;min-height:calc(100vh - 120px);min-width:980px;overflow:auto}
+.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
+.controls{padding:12px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 140px);overflow:auto}
+.card{border:1px solid #e5e7eb;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.card h3{margin:0;font-size:14px}
+label{font-size:12px;color:#334155;display:flex;flex-direction:column;gap:6px}
+input,select{font:inherit;border:1px solid #e2e8f0;border-radius:10px;padding:10px;background:#fff}
+input[type="range"]{padding:0}
+.grid{display:grid;gap:8px}
+.grid.two{grid-template-columns:1fr 1fr}
+.grid.three{grid-template-columns:1fr 1fr 1fr}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.tools button{padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;background:#eef2ff;color:#111827}
+hr.sep{border:none;border-top:1px solid #e5e7eb;margin:8px 0}
+details.adv{border:1px dashed #e5e7eb;border-radius:10px;padding:8px}
+details summary{cursor:pointer;font-weight:700;color:#0f172a}
+
+/* Preview */
+.preview{display:flex;flex-direction:column}
+.preview.sticky{position:sticky; top:72px; align-self:start; height:calc(100vh - 96px);}
+.preview-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #e5e7eb;background:#fff;gap:8px;flex-wrap:wrap}
+.preview-toolbar .left{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{background:#e2e8f0;color:#0f172a;padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px}
+.stage-wrap{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:14px;overflow:auto;min-width:0;min-height:0;cursor:grab;touch-action:none}
+.stage-wrap.centered{justify-content:center;align-items:center}
+.stage-wrap.dragging{cursor:grabbing}
+.canvas-frame{position:relative;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;background:#fff;padding:10px}
+canvas{display:block}
+.preview-label{position:absolute;background:rgba(2,6,23,.85);color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;pointer-events:none}
+.pos-tr{top:10px;right:18px}.pos-tl{top:10px;left:18px}.pos-br{bottom:10px;right:18px}.pos-bl{bottom:10px;left:18px}
+small.hint{color:#64748b}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note{font-size:12px;color:#475569}
+kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-radius:6px;padding:2px 6px}
+
+/* iPad bleibt zweispaltig */
+@media (max-width:740px){.layout{grid-template-columns:1fr} .preview.sticky{position:relative; height:auto;}}
+
+/* PiP mini preview */
+#pip{position:fixed; right:12px; bottom:12px; width:260px; height:260px; border:1px solid #cbd5e1; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(2,6,23,.15); display:none; z-index:10}
+#pip.on{display:block}
+#pip .hd{position:absolute; left:8px; top:6px; font-size:12px; color:#334155; background:rgba(241,245,249,.9); padding:2px 6px; border-radius:6px}
+#pip canvas{width:100%; height:100%}
+</style>
+</head>
+<body class="scrollbar">
+<header class="appbar">
+  <div class="brand"><span class="dot"></span><h1>Kreislogo&nbsp;<span class="sub">Pro v5.3.7 FINAL</span></h1></div>
+  <div class="app-actions">
+    <input id="projectName" class="projname" value="Mein Kreislogo" placeholder="Projektname …">
+    <button id="btnSaveProject" class="ghost">Projekt speichern</button>
+    <input id="loadProjectFile" type="file" accept=".json" hidden>
+    <button id="btnLoadProject" class="ghost">Projekt laden</button>
+    <button id="btnReset" class="ghost danger">Zurücksetzen</button>
+  </div>
+</header>
+
+<main class="layout scrollbar">
+  <aside class="panel controls scrollbar">
+    <section class="card">
+      <div class="row">
+        <h3 style="margin-right:auto">Modus & Presets</h3>
+        <span id="hb" class="badge">Live OK</span>
+      </div>
+      <div class="grid two">
+        <label>Modus
+          <select id="mode">
+            <option value="neutral" selected>Neutral</option>
+            <option value="textile">Textil (sRGB, 300 DPI, transparent)</option>
+            <option value="sticker">Aufkleber (Weiß, 300 DPI, 2 mm Anschnitt)</option>
+          </select>
+        </label>
+        <label>Preset
+          <select id="preset">
+            <option value="none" selected>— Preset wählen —</option>
+            <option value="tight">Kompakt & dicht</option>
+            <option value="classic">Classic & weit</option>
+            <option value="boldSticker">Sticker-Rand kräftig</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid three">
+        <label>Hintergrund
+          <select id="bgMode">
+            <option value="transparent" selected>Transparent</option>
+            <option value="white">Weiß</option>
+            <option value="black">Schwarz</option>
+          </select>
+        </label>
+        <label>Vorschau-Zoom
+          <input id="zoom" type="range" min="50" max="200" value="100">
+        </label>
+        <label>Autosave <input id="autosave" type="checkbox" checked></label>
+      </div>
+      <div class="grid two">
+        <label><input id="pipToggle" type="checkbox"> Mini‑Vorschau (PiP) immer sichtbar</label>
+        <label>PiP‑Größe (px)<input id="pipSize" type="range" min="180" max="360" value="260"></label>
+      </div>
+      <div class="tools">
+        <button type="button" data-ins="•">•</button>
+        <button type="button" data-ins="✦">✦</button>
+        <button type="button" data-ins="—">—</button>
+        <button type="button" data-ins="★">★</button>
+        <span class="note">Klick fügt Symbol am Cursor (Text1/2/3) ein</span>
+      </div>
+      <div class="grid two">
+        <label>Eigene Schrift laden (TTF/OTF/WOFF/WOFF2)
+          <input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2">
+        </label>
+        <label>Schrift-Name (Anzeige)
+          <input id="fontName" placeholder="z. B. MeineSchrift">
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Texte (Basis)</h3>
+      <label>Text 1 (oben)<input id="text1" value="STAMMTISCH – FINSTERBRUNNER – DUMMBABBLER"></label>
+      <label>Text 2 (unten)<input id="text2" value="KAISERSLAUTERN • EDITION 67"></label>
+      <label>Text 3 (optional)<input id="text3" placeholder="optional …"></label>
+      <div class="grid two">
+        <label>Startwinkel (°)<input id="startAngle" type="range" min="-180" max="180" value="12"></label>
+        <label>Spannung (°)<input id="sweep" type="range" min="60" max="360" value="360"></label>
+      </div>
+      <div class="grid three">
+        <label>Radius T1<input id="r1" type="range" min="100" max="470" value="390"></label>
+        <label>Radius T2<input id="r2" type="range" min="100" max="470" value="390"></label>
+        <label>Radius T3<input id="r3" type="range" min="80" max="470" value="260"></label>
+      </div>
+      <div class="grid three">
+        <label>Richtung T1<select id="dir1"><option value="cw">Uhrzeiger</option><option value="ccw">Gegen</option></select></label>
+        <label>Richtung T2<select id="dir2"><option value="ccw">Gegen</option><option value="cw">Uhrzeiger</option></select></label>
+        <label><small class="hint">T3 nutzt Uhrzeiger</small></label>
+      </div>
+      <hr class="sep">
+      <details class="adv" open>
+        <summary>Text 1 – Erweitert</summary>
+        <div class="grid three">
+          <label>Größe<input id="t1_fs" type="range" min="16" max="220" value="92"></label>
+          <label>Gewicht<select id="t1_fw"><option>400</option><option selected>800</option><option>900</option></select></label>
+          <label>Familie<select id="t1_ff"><option>Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif</option><option>Inter, system-ui, -apple-system, Segoe UI, Roboto</option><option>'Trebuchet MS', Tahoma, sans-serif</option><option>Georgia, 'Times New Roman', serif</option><option>monospace</option></select></label>
+        </div>
+        <div class="grid three">
+          <label>Farbe<input id="t1_fill" type="color" value="#111827"></label>
+          <label>Konturfarbe<input id="t1_stroke" type="color" value="#111827"></label>
+          <label>Konturbreite<input id="t1_sw" type="range" min="0" max="14" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Tracking (px)<input id="t1_ls" type="range" min="-120" max="80" value="2"></label>
+          <label>Word‑Space (px)<input id="t1_ws" type="range" min="-40" max="120" value="0"></label>
+          <label>Offset (°)<input id="t1_off" type="range" min="-180" max="180" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Scale X<input id="t1_sx" type="range" min="60" max="180" value="100"></label>
+          <label>Schräg (°)<input id="t1_skew" type="range" min="-30" max="30" value="0"></label>
+          <label><input id="t1_upright" type="checkbox" checked> Aufrecht halten</label>
+        </div>
+        <div class="grid two">
+          <label>Arc‑Fit<select id="t1_fit"><option value="fit" selected>an Spannungsbogen anpassen</option><option value="free">freie Länge</option></select></label>
+          <label>Groß/Klein<select id="t1_case"><option value="keep">Original</option><option value="upper">GROß</option><option value="lower">klein</option></select></label>
+        </div>
+      </details>
+
+      <details class="adv">
+        <summary>Text 2 – Erweitert</summary>
+        <div class="grid three">
+          <label>Größe<input id="t2_fs" type="range" min="16" max="220" value="92"></label>
+          <label>Gewicht<select id="t2_fw"><option>400</option><option selected>800</option><option>900</option></select></label>
+          <label>Familie<select id="t2_ff"><option>Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif</option><option>Inter, system-ui, -apple-system, Segoe UI, Roboto</option><option>'Trebuchet MS', Tahoma, sans-serif</option><option>Georgia, 'Times New Roman', serif</option><option>monospace</option></select></label>
+        </div>
+        <div class="grid three">
+          <label>Farbe<input id="t2_fill" type="color" value="#111827"></label>
+          <label>Konturfarbe<input id="t2_stroke" type="color" value="#111827"></label>
+          <label>Konturbreite<input id="t2_sw" type="range" min="0" max="14" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Tracking (px)<input id="t2_ls" type="range" min="-120" max="80" value="2"></label>
+          <label>Word‑Space (px)<input id="t2_ws" type="range" min="-40" max="120" value="0"></label>
+          <label>Offset (°)<input id="t2_off" type="range" min="-180" max="180" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Scale X<input id="t2_sx" type="range" min="60" max="180" value="100"></label>
+          <label>Schräg (°)<input id="t2_skew" type="range" min="-30" max="30" value="0"></label>
+          <label><input id="t2_upright" type="checkbox" checked> Aufrecht halten</label>
+        </div>
+        <div class="grid two">
+          <label>Arc‑Fit<select id="t2_fit"><option value="fit" selected>an Spannungsbogen anpassen</option><option value="free">freie Länge</option></select></label>
+          <label>Groß/Klein<select id="t2_case"><option value="keep">Original</option><option value="upper">GROß</option><option value="lower">klein</option></select></label>
+        </div>
+      </details>
+
+      <details class="adv">
+        <summary>Text 3 – Erweitert</summary>
+        <div class="grid three">
+          <label>Größe<input id="t3_fs" type="range" min="16" max="220" value="72"></label>
+          <label>Gewicht<select id="t3_fw"><option>400</option><option selected>800</option><option>900</option></select></label>
+          <label>Familie<select id="t3_ff"><option>Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif</option><option>Inter, system-ui, -apple-system, Segoe UI, Roboto</option><option>'Trebuchet MS', Tahoma, sans-serif</option><option>Georgia, 'Times New Roman', serif</option><option>monospace</option></select></label>
+        </div>
+        <div class="grid three">
+          <label>Farbe<input id="t3_fill" type="color" value="#111827"></label>
+          <label>Konturfarbe<input id="t3_stroke" type="color" value="#111827"></label>
+          <label>Konturbreite<input id="t3_sw" type="range" min="0" max="14" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Tracking (px)<input id="t3_ls" type="range" min="-120" max="80" value="2"></label>
+          <label>Word‑Space (px)<input id="t3_ws" type="range" min="-40" max="120" value="0"></label>
+          <label>Offset (°)<input id="t3_off" type="range" min="-180" max="180" value="0"></label>
+        </div>
+        <div class="grid three">
+          <label>Scale X<input id="t3_sx" type="range" min="60" max="180" value="100"></label>
+          <label>Schräg (°)<input id="t3_skew" type="range" min="-30" max="30" value="0"></label>
+          <label><input id="t3_upright" type="checkbox" checked> Aufrecht halten</label>
+        </div>
+        <div class="grid two">
+          <label>Arc‑Fit<select id="t3_fit"><option value="fit" selected>an Spannungsbogen anpassen</option><option value="free">freie Länge</option></select></label>
+          <label>Groß/Klein<select id="t3_case"><option value="keep">Original</option><option value="upper">GROß</option><option value="lower">klein</option></select></label>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h3>Ringe, Mitte & Hilfslinien</h3>
+      <div class="grid three">
+        <label>Außenring Breite<input id="outerW" type="range" min="0" max="100" value="36"></label>
+        <label>Außenring Farbe<input id="outerC" type="color" value="#111827"></label>
+        <label>Innenring Radius<input id="innerR" type="range" min="80" max="480" value="360"></label>
+      </div>
+      <div class="grid three">
+        <label>Innenring Deckung<input id="innerO" type="range" min="0" max="100" value="35"></label>
+        <label>Kernring Radius<input id="coreR" type="range" min="80" max="480" value="220"></label>
+        <label>Kernring Deckung<input id="coreO" type="range" min="0" max="100" value="20"></label>
+      </div>
+      <div class="grid three">
+        <label>Anschnitt / Bleed (px@Exportbreite)<input id="bleed" type="number" min="0" max="200" value="0"></label>
+        <label><input id="showSafe" type="checkbox" checked> Safe‑Zone anzeigen</label>
+        <label>Safe‑Zone (%)<input id="safePct" type="range" min="60" max="95" value="85"></label>
+      </div>
+      <div class="grid two">
+        <label>Mittel-Icon (PNG/JPG/SVG)<input id="centerFile" type="file" accept=".png,.jpg,.jpeg,.svg"></label>
+        <label>Größe Mitte<input id="centerSize" type="range" min="40" max="720" value="300"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Vorschau & Overlay</h3>
+      <div class="grid three">
+        <label><input id="showChecker" type="checkbox" checked> Schachbrett</label>
+        <label><input id="showLabel" type="checkbox" checked> Overlay‑Label</label>
+        <label>Label‑Pos<select id="labelPos"><option value="tr" selected>oben rechts</option><option value="tl">oben links</option><option value="br">unten rechts</option><option value="bl">unten links</option></select></label>
+      </div>
+      <label>Label‑Text<input id="previewLabel" value="Vorschau"></label>
+      <div class="grid two">
+        <label>Kontur‑Join<select id="strokeJoin"><option>round</option><option selected>miter</option><option>bevel</option></select></label>
+        <label>Miter‑Limit<input id="miterLimit" type="range" min="1" max="20" value="4"></label>
+      </div>
+      <div class="grid two">
+        <label>Gamma<input id="adj_gamma" type="range" min="0.5" max="2.5" step="0.01" value="1.0"></label>
+        <label>Sättigung<input id="adj_sat" type="range" min="0" max="2" step="0.01" value="1.0"></label>
+        <label>Kontrast<input id="adj_con" type="range" min="0.5" max="2.0" step="0.01" value="1.0"></label>
+        <label>Helligkeit<input id="adj_bri" type="range" min="0.5" max="1.5" step="0.01" value="1.0"></label>
+      </div>
+      <label><input id="previewAdjust" type="checkbox"> Farbkorrektur live in der Vorschau anwenden</label>
+    </section>
+
+    <section class="card">
+      <h3>Export & Druck</h3>
+      <div class="grid three">
+        <label>DPI<input id="dpi" type="number" min="72" max="1200" value="300"></label>
+        <label>Breite (px)<input id="pxSize" type="number" min="500" max="16000" value="4000"></label>
+        <label><input id="embedSRGB" type="checkbox" checked> PNG mit sRGB‑Chunk</label>
+      </div>
+      <div class="grid two">
+        <label>Kantenlänge (mm) — max. 300<input id="mmSize" type="number" min="10" max="300" value="100"></label>
+        <label><input id="squareLock" type="checkbox" checked> Seitenverhältnis 1:1 (empfohlen)</label>
+      </div>
+      <div class="grid two">
+        <button id="btnPNG">PNG (transparent/weiß, DPI, sRGB/pHYs)</button>
+        <button id="btnSVG" class="ghost">SVG (Vektor‑Texte)</button>
+      </div>
+      <div class="note">Hinweis: Vollständige ICC‑Profile können Browserseitig nicht sicher eingebettet werden. PNG enthält sRGB + pHYs (DPI). Für Textil/Sticker bitte im RIP auf das jeweilige Zielprofil wandeln.</div>
+    </section>
+  </aside>
+
+  <section class="panel preview sticky scrollbar">
+    <div class="preview-toolbar">
+      <div class="left" style="gap:6px">
+        <span class="chip" id="chipSize">4000 px • 300 DPI • 339.7 mm</span>
+        <span class="chip" id="chipMode">Neutral</span>
+        <label class="chip" style="display:flex;gap:6px;align-items:center;">
+          <input id="autoFit" type="checkbox" checked> Fit ins Fenster
+        </label>
+      </div>
+      <div class="right" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <button id="btnZoomOut" class="icon ghost" title="Zoom -">−</button>
+        <button id="btnFit" class="ghost" title="Fit ins Fenster">Fit</button>
+        <button id="btn100" class="ghost" title="100%">100%</button>
+        <button id="btn200" class="ghost" title="200%">200%</button>
+        <button id="btnZoomIn" class="icon ghost" title="Zoom +">+</button>
+        <button id="btnCenter" class="ghost" title="Ansicht zentrieren">Reset</button>
+        <button id="topPNG" class="ghost">PNG</button>
+        <button id="topSVG" class="ghost">SVG</button>
+      </div>
+    </div>
+    <div class="stage-wrap scrollbar" id="stageWrap">
+      <div class="canvas-frame" id="frame">
+        <canvas id="stage" width="1000" height="1000"></canvas>
+        <div class="preview-label pos-tr" id="previewLabelBox">Vorschau</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- PiP overlay -->
+<div id="pip"><span class="hd">Live‑Vorschau</span><canvas id="pipc" width="512" height="512"></canvas></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const E={mode:$('#mode'),preset:$('#preset'),bgMode:$('#bgMode'),zoom:$('#zoom'),autosave:$('#autosave'),
+  fontFile:$('#fontFile'),fontName:$('#fontName'),
+  pipToggle:$('#pipToggle'),pipSize:$('#pipSize'),pipBox:$('#pip'),pipCanvas:$('#pipc'),
+  text1:$('#text1'),text2:$('#text2'),text3:$('#text3'),
+  r1:$('#r1'),r2:$('#r2'),r3:$('#r3'),startAngle:$('#startAngle'),sweep:$('#sweep'),dir1:$('#dir1'),dir2:$('#dir2'),
+  t1_fs:$('#t1_fs'),t1_fw:$('#t1_fw'),t1_ff:$('#t1_ff'),t1_fill:$('#t1_fill'),t1_stroke:$('#t1_stroke'),t1_sw:$('#t1_sw'),t1_ls:$('#t1_ls'),t1_ws:$('#t1_ws'),t1_off:$('#t1_off'),t1_sx:$('#t1_sx'),t1_skew:$('#t1_skew'),t1_upright:$('#t1_upright'),t1_fit:$('#t1_fit'),t1_case:$('#t1_case'),
+  t2_fs:$('#t2_fs'),t2_fw:$('#t2_fw'),t2_ff:$('#t2_ff'),t2_fill:$('#t2_fill'),t2_stroke:$('#t2_stroke'),t2_sw:$('#t2_sw'),t2_ls:$('#t2_ls'),t2_ws:$('#t2_ws'),t2_off:$('#t2_off'),t2_sx:$('#t2_sx'),t2_skew:$('#t2_skew'),t2_upright:$('#t2_upright'),t2_fit:$('#t2_fit'),t2_case:$('#t2_case'),
+  t3_fs:$('#t3_fs'),t3_fw:$('#t3_fw'),t3_ff:$('#t3_ff'),t3_fill:$('#t3_fill'),t3_stroke:$('#t3_stroke'),t3_sw:$('#t3_sw'),t3_ls:$('#t3_ls'),t3_ws:$('#t3_ws'),t3_off:$('#t3_off'),t3_sx:$('#t3_sx'),t3_skew:$('#t3_skew'),t3_upright:$('#t3_upright'),t3_fit:$('#t3_fit'),t3_case:$('#t3_case'),
+  outerW:$('#outerW'),outerC:$('#outerC'),innerR:$('#innerR'),innerO:$('#innerO'),coreR:$('#coreR'),coreO:$('#coreO'),
+  bleed:$('#bleed'),showSafe:$('#showSafe'),safePct:$('#safePct'),
+  centerFile:$('#centerFile'),centerSize:$('#centerSize'),
+  showChecker:$('#showChecker'),showLabel:$('#showLabel'),labelPos:$('#labelPos'),previewLabel:$('#previewLabel'),
+  strokeJoin:$('#strokeJoin'),miterLimit:$('#miterLimit'),adj_gamma:$('#adj_gamma'),adj_sat:$('#adj_sat'),adj_con:$('#adj_con'),adj_bri:$('#adj_bri'),previewAdjust:$('#previewAdjust'),
+  dpi:$('#dpi'),pxSize:$('#pxSize'),embedSRGB:$('#embedSRGB'),
+  mmSize:$('#mmSize'),squareLock:$('#squareLock'),
+  chipSize:$('#chipSize'),chipMode:$('#chipMode'),
+  btnPNG:$('#btnPNG'),btnSVG:$('#btnSVG'),topPNG:$('#topPNG'),topSVG:$('#topSVG'),
+  btnSaveProject:$('#btnSaveProject'),btnLoadProject:$('#btnLoadProject'),loadProjectFile:$('#loadProjectFile'),projectName:$('#projectName'),btnReset:$('#btnReset'),
+  frame:$('#frame'),canvas:$('#stage'),previewLabelBox:$('#previewLabelBox'),hb:$('#hb'),
+  stageWrap:$('#stageWrap'),btnCenter:$('#btnCenter'),autoFit:$('#autoFit'),
+  btnZoomOut:$('#btnZoomOut'),btnZoomIn:$('#btnZoomIn'),btnFit:$('#btnFit'),btn100:$('#btn100'),btn200:$('#btn200')
+};
+const ctx=E.canvas.getContext('2d',{alpha:true}); let centerImage=null;
+let lastChanged='mm'; // mm, px, dpi
+
+/* Helpers */
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const mm_to_px=(mm,dpi)=>Math.round(mm/25.4*dpi);
+const px_to_mm=(px,dpi)=>px/dpi*25.4;
+function updateChips(){
+  const mm = px_to_mm(+E.pxSize.value, +E.dpi.value);
+  const mmRound = Math.round(mm*10)/10;
+  E.chipSize.textContent = `${E.pxSize.value} px • ${E.dpi.value} DPI • ${mmRound} mm`;
+}
+
+/* Eingabe-Verknüpfung mm <-> px <-> dpi */
+function syncFromMM(){
+  let mm = clamp(+E.mmSize.value||100, 10, 300);
+  E.mmSize.value = mm;
+  const px = clamp(mm_to_px(mm, +E.dpi.value), 500, 16000);
+  E.pxSize.value = px;
+  updateChips();
+}
+function syncFromPX(){
+  let px = clamp(+E.pxSize.value||4000, 500, 16000);
+  E.pxSize.value = px;
+  const mm = clamp(px_to_mm(px, +E.dpi.value), 10, 300);
+  E.mmSize.value = Math.round(mm*10)/10;
+  updateChips();
+}
+function syncFromDPI(){
+  if(lastChanged==='mm'){ syncFromMM(); }
+  else { syncFromPX(); }
+}
+
+E.mmSize.addEventListener('input', ()=>{ lastChanged='mm'; syncFromMM(); render(); });
+E.pxSize.addEventListener('input', ()=>{ lastChanged='px'; syncFromPX(); render(); });
+E.dpi   .addEventListener('input', ()=>{ lastChanged=(lastChanged||'mm'); syncFromDPI(); render(); });
+
+/* Text insertion helpers */
+let activeText=E.text1;
+document.querySelectorAll('input[type="text"]').forEach(inp=>inp.addEventListener('focus',()=>activeText=inp));
+document.querySelectorAll('.tools button[data-ins]').forEach(b=>b.addEventListener('click',()=>{
+  const s=b.getAttribute('data-ins'); const el=activeText||E.text1;
+  const start=el.selectionStart||el.value.length; const end=el.selectionEnd||start;
+  el.value = el.value.slice(0,start)+s+el.value.slice(end);
+  el.focus(); el.selectionStart=el.selectionEnd=start+s.length; render();
+}));
+
+/* Font upload */
+E.fontFile.addEventListener('change', async e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const disp=E.fontName.value?.trim()||('UserFont-'+(crypto?.randomUUID?.().slice(0,8)||Date.now()));
+  try{
+    const data=await f.arrayBuffer();
+    const face=new FontFace(disp, data);
+    await face.load(); document.fonts.add(face);
+    [E.t1_ff,E.t2_ff,E.t3_ff].forEach(sel=>{const opt=document.createElement('option'); opt.textContent=disp; opt.value=disp; sel.add(opt, sel.options[0]); sel.value=disp;});
+    render();
+  }catch(err){ alert('Schrift konnte nicht geladen werden.'); }
+});
+
+function degToRad(d){return d*Math.PI/180}
+function setFont(ctx,size,weight,family){ctx.font=`${weight} ${size}px ${family}`;ctx.textBaseline='middle';ctx.textAlign='center'}
+function drawRing(ctx,r,c,w,a=1){if(w<=0)return;ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.arc(500,500,r,0,Math.PI*2);ctx.stroke();ctx.restore()}
+function drawChecker(ctx){if(!E.showChecker.checked)return;const s=20;for(let y=0;y<1000;y+=s){for(let x=0;x<1000;x+=s){ctx.fillStyle=((x/s+y/s)%2)?'#e5e7eb':'#f3f4f6';ctx.fillRect(x,y,s,s)}}}
+function applyCase(s,m){if(m==='upper')return s.toUpperCase();if(m==='lower')return s.toLowerCase();return s}
+function clampSweep(v){return Math.min(Math.max(+v,60),360)-0.1}
+function drawSafe(ctx){
+  if(!E.showSafe.checked) return;
+  const pct=Math.max(50,Math.min(98,+E.safePct.value))/100;
+  ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(500,500, 500*pct, 0, Math.PI*2); ctx.stroke();
+  ctx.restore();
+}
+function drawCircularTextAdvanced(ctx,text,opt){
+  if(!text) return; text=applyCase(text,opt.caseMode||'keep');
+  setFont(ctx,opt.size,opt.weight,opt.family);
+  ctx.lineJoin=E.strokeJoin.value; ctx.miterLimit=+E.miterLimit.value;
+  const chars=[...text];
+  const advances=chars.map(ch=>Math.max(0, ctx.measureText(ch).width*opt.scaleX + (ch===' '?opt.wordSpace:0) + opt.letterSpace));
+  const total=advances.reduce((a,b)=>a+b,0)||1;
+  const sweepC=clampSweep(opt.sweep);
+  const arcLen=Math.abs(sweepC)*Math.PI/180*opt.radius;
+  const scale=(opt.fit==='fit')?(arcLen/total):1.0;
+  const dir=opt.clockwise?1:-1;
+  const sweepRad=degToRad(Math.abs(sweepC))*dir;
+  let theta=degToRad(opt.start-(sweepC/2));
+  const arcPerUnit=sweepRad/total;
+  ctx.save(); ctx.translate(500,500);
+  for(let i=0;i<chars.length;i++){
+    const adv=advances[i]*scale;
+    const aMid=theta+arcPerUnit*adv/2;
+    const x=Math.cos(aMid)*opt.radius, y=Math.sin(aMid)*opt.radius;
+    ctx.save(); ctx.translate(x,y);
+    let rot=aMid + (opt.clockwise?Math.PI/2:-Math.PI/2);
+    if(opt.upright){ let norm=((rot+Math.PI)%(2*Math.PI))-Math.PI; if(norm>Math.PI/2)rot-=Math.PI; if(norm<-Math.PI/2)rot+=Math.PI; }
+    ctx.rotate(rot);
+    const skew=Math.tan(degToRad(opt.skew)); ctx.transform(opt.scaleX,0,skew,1,0,0);
+    if(opt.strokeWidth>0){ctx.lineWidth=opt.strokeWidth;ctx.strokeStyle=opt.stroke;ctx.strokeText(chars[i],0,0)}
+    ctx.fillStyle=opt.fill; ctx.fillText(chars[i],0,0);
+    ctx.restore();
+    theta+=arcPerUnit*adv;
+  }
+  ctx.restore();
+}
+
+function processAdjustments(ctx){
+  const g=+E.adj_gamma.value,s=+E.adj_sat.value,c=+E.adj_con.value,b=+E.adj_bri.value;
+  const img=ctx.getImageData(0,0,1000,1000),d=img.data; const wlR=0.2126,wlG=0.7152,wlB=0.0722;
+  for(let i=0;i<d.length;i+=4){
+    let r=d[i]/255,gr=d[i+1]/255,bl=d[i+2]/255;
+    r=Math.pow(r,2.2/g); gr=Math.pow(gr,2.2/g); bl=Math.pow(bl,2.2/g);
+    const lum=r*wlR+gr*wlG+bl*wlB;
+    r=lum+(r-lum)*s; gr=lum+(gr-lum)*s; bl=lum+(bl-lum)*s;
+    r=(r-0.5)*c+0.5; gr=(gr-0.5)*c+0.5; bl=(bl-0.5)*c+0.5;
+    r*=b; gr*=b; bl*=b;
+    d[i]=Math.max(0,Math.min(255,Math.round(r*255)));
+    d[i+1]=Math.max(0,Math.min(255,Math.round(gr*255)));
+    d[i+2]=Math.max(0,Math.min(255,Math.round(bl*255)));
+  }
+  ctx.putImageData(img,0,0);
+}
+
+/* ---------- Größen/Scroll/Center ---------- */
+let needsCenter=true;
+function updateCenterClass(){
+  const sw=E.stageWrap;
+  const contentW=E.frame.offsetWidth;
+  const contentH=E.frame.offsetHeight;
+  const viewW=sw.clientWidth;
+  const viewH=sw.clientHeight;
+  const shouldCenter = contentW <= viewW && contentH <= viewH;
+  sw.classList.toggle('centered', shouldCenter);
+}
+function resizePreview(){
+  const z=Math.max(0.5, Math.min(2.0, +E.zoom.value/100));
+  let px = Math.round(1000 * z); // Basisskala
+  const sw = E.stageWrap;
+  const PAD = 14*2 + 10*2; // stageWrap + frame padding
+  if (E.autoFit.checked && sw) {
+    const maxW = Math.max(260, sw.clientWidth  - PAD);
+    const maxH = Math.max(260, sw.clientHeight - PAD);
+    const fit = Math.floor(Math.min(maxW, maxH));
+    px = Math.min(px, fit);
+  }
+  E.canvas.style.width = px + 'px';
+  E.canvas.style.height = px + 'px';
+  E.frame.style.width  = (px + 20) + 'px';
+  E.frame.style.height = (px + 20) + 'px';
+  updateCenterClass();
+  needsCenter = true;
+}
+function centerView(){
+  const sw = E.stageWrap;
+  const contentW = E.frame.offsetWidth;
+  const contentH = E.frame.offsetHeight;
+  const viewW = sw.clientWidth;
+  const viewH = sw.clientHeight;
+  sw.scrollLeft = Math.max(0, Math.round((contentW - viewW)/2));
+  sw.scrollTop  = Math.max(0, Math.round((contentH - viewH)/2));
+}
+function centerIfNeeded(){
+  if(!needsCenter) return;
+  requestAnimationFrame(()=>{
+    centerView();
+    needsCenter=false;
+  });
+}
+
+/* ---------- Drag-to-pan (Maus & Touch) ---------- */
+let drag={active:false, x:0, y:0, sl:0, st:0, lastTap:0};
+function startDrag(clientX, clientY){
+  drag.active=true; drag.x=clientX; drag.y=clientY; drag.sl=E.stageWrap.scrollLeft; drag.st=E.stageWrap.scrollTop;
+  E.stageWrap.classList.add('dragging');
+}
+function moveDrag(clientX, clientY){
+  if(!drag.active) return;
+  const dx = clientX - drag.x;
+  const dy = clientY - drag.y;
+  E.stageWrap.scrollLeft = drag.sl - dx;
+  E.stageWrap.scrollTop  = drag.st - dy;
+}
+function endDrag(){ drag.active=false; E.stageWrap.classList.remove('dragging'); }
+E.stageWrap.addEventListener('mousedown', e=>{ if(e.button!==0) return; startDrag(e.clientX,e.clientY); });
+window.addEventListener('mousemove', e=>moveDrag(e.clientX,e.clientY));
+window.addEventListener('mouseup', endDrag);
+E.stageWrap.addEventListener('mouseleave', endDrag);
+// Touch inkl. Doppeltipp (Fit <-> 100%)
+E.stageWrap.addEventListener('touchstart', e=>{
+  if(e.touches.length===1){ const t=e.touches[0]; startDrag(t.clientX,t.clientY); }
+  const now=Date.now(); if(now-drag.lastTap<350){ E.autoFit.checked=!E.autoFit.checked; if(!E.autoFit.checked){E.zoom.value=100;} render(); }
+  drag.lastTap=now;
+},{passive:true});
+E.stageWrap.addEventListener('touchmove', e=>{ if(e.touches.length===1){ const t=e.touches[0]; moveDrag(t.clientX,t.clientY); e.preventDefault(); } }, {passive:false});
+E.stageWrap.addEventListener('touchend', endDrag);
+
+/* ---------- Wheel Zoom (Ctrl/⌘ + Rad/Pinch) ---------- */
+E.stageWrap.addEventListener('wheel', e=>{
+  if(e.ctrlKey || e.metaKey){
+    e.preventDefault();
+    const dz = Math.sign(e.deltaY);
+    let z = +E.zoom.value;
+    z += (dz>0?-10:10);
+    z = Math.max(50, Math.min(200, z));
+    E.autoFit.checked = false;
+    E.zoom.value = z;
+    needsCenter=true; render();
+  }
+}, {passive:false});
+
+/* ---------- Render ---------- */
+function render(){
+  resizePreview();
+  updateChips();
+  E.chipMode.textContent=E.mode.options[E.mode.selectedIndex].text;
+  E.previewLabelBox.textContent=E.previewLabel.value||'Vorschau';
+  E.previewLabelBox.style.display=E.showLabel.checked?'block':'none';
+  E.previewLabelBox.className='preview-label pos-'+E.labelPos.value;
+
+  ctx.clearRect(0,0,1000,1000);
+  if(E.bgMode.value!=='transparent'){
+    ctx.save(); ctx.fillStyle=(E.bgMode.value==='white')?'#ffffff':'#000000'; ctx.fillRect(0,0,1000,1000); ctx.restore();
+  }
+  drawChecker(ctx);
+  drawRing(ctx,450,E.outerC.value,+E.outerW.value,1);
+  drawRing(ctx,+E.innerR.value,'#111827',2,(+E.innerO.value)/100);
+  drawRing(ctx,+E.coreR.value,'#111827',2,(+E.coreO.value)/100);
+
+  const start=+E.startAngle.value, sweep=+E.sweep.value;
+  const base = (i)=>({radius:+E['r'+i].value,fill:E[`t${i}_fill`].value,stroke:E[`t${i}_stroke`].value,strokeWidth:+E[`t${i}_sw`].value,letterSpace:+E[`t${i}_ls`].value,wordSpace:+E[`t${i}_ws`].value,scaleX:+E[`t${i}_sx`].value/100,skew:+E[`t${i}_skew`].value,upright:E[`t${i}_upright`].checked,size:+E[`t${i}_fs`].value,weight:E[`t${i}_fw`].value,family:E[`t${i}_ff`].value,fit:E[`t${i}_fit`].value,caseMode:E[`t${i}_case`].value});
+  const o1=Object.assign(base(1),{clockwise:E.dir1.value==='cw',start:start+(+E.t1_off.value),sweep});
+  const o2=Object.assign(base(2),{clockwise:E.dir2.value==='cw',start:start+(+E.t2_off.value),sweep});
+  const o3=Object.assign(base(3),{clockwise:true,start:start+(+E.t3_off.value),sweep});
+  drawCircularTextAdvanced(ctx, E.text1.value.trim(), o1);
+  drawCircularTextAdvanced(ctx, E.text2.value.trim(), o2);
+  drawCircularTextAdvanced(ctx, E.text3.value.trim(), o3);
+
+  if(centerImage){const s=+E.centerSize.value;ctx.drawImage(centerImage,500-s/2,500-s/2,s,s)}
+  drawSafe(ctx);
+  if(E.previewAdjust.checked)processAdjustments(ctx);
+
+  // PiP
+  const usePip = E.pipToggle.checked; const pipBox=E.pipBox; const pipC=E.pipCanvas;
+  if(usePip){ const sz=+E.pipSize.value; pipBox.style.width=sz+'px'; pipBox.style.height=sz+'px'; pipBox.classList.add('on');
+    const pctx=pipC.getContext('2d'); pipC.width=sz*2; pipC.height=sz*2; pctx.clearRect(0,0,pipC.width,pipC.height); pctx.drawImage(E.canvas,0,0,pipC.width,pipC.height);
+  } else { pipBox.classList.remove('on'); }
+
+  E.hb.textContent='Live OK';
+
+  centerIfNeeded();
+}
+
+/* --- Buttons --- */
+E.btnZoomOut.addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=Math.max(50, +E.zoom.value-10); needsCenter=true; render();});
+E.btnZoomIn .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=Math.min(200, +E.zoom.value+10); needsCenter=true; render();});
+E.btnFit    .addEventListener('click',()=>{E.autoFit.checked=true; needsCenter=true; render();});
+E.btn100    .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=100; needsCenter=true; render();});
+E.btn200    .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=200; needsCenter=true; render();});
+E.btnCenter .addEventListener('click',()=>{needsCenter=true; render();});
+
+/* --- Presets/Mode & Export --- */
+E.preset.addEventListener('change',()=>{
+  switch(E.preset.value){
+    case 'tight': E.t1_ls.value=-60; E.t2_ls.value=-60; E.t3_ls.value=-40; E.t1_ws.value=-10; E.t2_ws.value=-10; E.t3_ws.value=-8; E.t1_sx.value=85; E.t2_sx.value=85; break;
+    case 'classic': E.t1_ls.value=6; E.t2_ls.value=6; E.t3_ls.value=4; E.t1_ws.value=10; E.t2_ws.value=10; E.t3_ws.value=8; E.t1_sx.value=100; E.t2_sx.value=100; break;
+    case 'boldSticker': E.outerW.value=60; E.outerC.value='#111827'; E.bgMode.value='white'; E.bleed.value=80; break;
+  }
+  render();
+});
+E.mode.addEventListener('change',()=>{
+  if(E.mode.value==='textile'){E.embedSRGB.checked=true;E.bgMode.value='transparent';E.dpi.value=300;}
+  else if(E.mode.value==='sticker'){E.embedSRGB.checked=true;E.bgMode.value='white';E.dpi.value=300; if(!+E.bleed.value)E.bleed.value=80;}
+  syncFromDPI(); render();
+});
+
+// Autosave
+const AUTOKEY='kreislogo_pro_v537_autosave';
+function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.7-final'},
+  ui:{mode:E.mode.value,preset:E.preset.value,bg:E.bgMode.value,zoom:+E.zoom.value,autosave:E.autosave.checked,pip:E.pipToggle.checked,pipSize:+E.pipSize.value,autoFit:E.autoFit.checked},
+  start:+E.startAngle.value,sweep:+E.sweep.value,texts:[E.text1.value,E.text2.value,E.text3.value],radii:[+E.r1.value,+E.r2.value,+E.r3.value],dirs:[E.dir1.value,E.dir2.value],
+  t1:{fs:+E.t1_fs.value,fw:E.t1_fw.value,ff:E.t1_ff.value,fill:E.t1_fill.value,stroke:E.t1_stroke.value,sw:+E.t1_sw.value,ls:+E.t1_ls.value,ws:+E.t1_ws.value,off:+E.t1_off.value,sx:+E.t1_sx.value,skew:+E.t1_skew.value,upr:E.t1_upright.checked,fit:E.t1_fit.value,case:E.t1_case.value},
+  t2:{fs:+E.t2_fs.value,fw:E.t2_fw.value,ff:E.t2_ff.value,fill:E.t2_fill.value,stroke:E.t2_stroke.value,sw:+E.t2_sw.value,ls:+E.t2_ls.value,ws:+E.t2_ws.value,off:+E.t2_off.value,sx:+E.t2_sx.value,skew:+E.t2_skew.value,upr:E.t2_upright.checked,fit:E.t2_fit.value,case:E.t2_case.value},
+  t3:{fs:+E.t3_fs.value,fw:E.t3_fw.value,ff:E.t3_ff.value,fill:E.t3_fill.value,stroke:E.t3_stroke.value,sw:+E.t3_sw.value,ls:+E.t3_ls.value,ws:+E.t3_ws.value,off:+E.t3_off.value,sx:+E.t3_sx.value,skew:+E.t3_skew.value,upr:E.t3_upright.checked,fit:E.t3_fit.value,case:E.t3_case.value},
+  rings:{outerW:+E.outerW.value,outerC:E.outerC.value,innerR:+E.innerR.value,innerO:+E.innerO.value,coreR:+E.coreR.value,coreO:+E.coreO.value,bleed:+E.bleed.value,showSafe:E.showSafe.checked,safePct:+E.safePct.value},
+  overlay:{checker:E.showChecker.checked,label:E.showLabel.checked,pos:E.labelPos.value,txt:E.previewLabel.value},
+  adj:{gamma:+E.adj_gamma.value,sat:+E.adj_sat.value,con:+E.adj_con.value,bri:+E.adj_bri.value,prev:E.previewAdjust.checked},
+  export:{dpi:+E.dpi.value,px:+E.pxSize.value,srgb:E.embedSRGB.checked,mm:+E.mmSize.value,lock:E.squareLock.checked}
+};}
+function applyProject(p){
+  E.projectName.value=p.meta?.name||'Kreislogo';
+  if(p.ui){E.mode.value=p.ui.mode||'neutral';E.preset.value=p.ui.preset||'none';E.bgMode.value=p.ui.bg||'transparent';E.zoom.value=p.ui.zoom||100;E.autosave.checked=!!p.ui.autosave;E.pipToggle.checked=!!p.ui.pip;E.pipSize.value=p.ui.pipSize||260;E.autoFit.checked=(p.ui.autoFit!==false);}
+  E.startAngle.value=p.start??12; E.sweep.value=p.sweep??360;
+  [E.text1.value,E.text2.value,E.text3.value]=p.texts||['','',''];
+  [E.r1.value,E.r2.value,E.r3.value]=p.radii||[390,390,260];
+  E.dir1.value=(p.dirs&&p.dirs[0])||'cw'; E.dir2.value=(p.dirs&&p.dirs[1])||'ccw';
+  ['t1','t2','t3'].forEach(k=>{const src=p[k]||{}; ['fs','fw','ff','fill','stroke','sw','ls','ws','off','sx','skew','upr','fit','case'].forEach(prop=>{const el=E[`${k}_${prop}`]; if(!el) return; if(typeof src[prop]==='boolean') el.checked=src[prop]; else el.value = (src[prop]!==undefined?src[prop]:el.value);});});
+  if(p.rings){E.outerW.value=p.rings.outerW||E.outerW.value;E.outerC.value=p.rings.outerC||E.outerC.value;E.innerR.value=p.rings.innerR||E.innerR.value;E.innerO.value=p.rings.innerO||E.innerO.value;E.coreR.value=p.rings.coreR||E.coreR.value;E.coreO.value=p.rings.coreO||E.coreO.value;E.bleed.value=p.rings.bleed||0;E.showSafe.checked=!!p.rings.showSafe;E.safePct.value=p.rings.safePct||85;}
+  if(p.overlay){E.showChecker.checked=!!p.overlay.checker;E.showLabel.checked=!!p.overlay.label;E.labelPos.value=p.overlay.pos||'tr';E.previewLabel.value=p.overlay.txt||'Vorschau';}
+  if(p.adj){E.adj_gamma.value=p.adj.gamma||1;E.adj_sat.value=p.adj.sat||1;E.adj_con.value=p.adj.con||1;E.adj_bri.value=p.adj.bri||1;E.previewAdjust.checked=!!p.adj.prev;}
+  if(p.export){E.dpi.value=p.export.dpi||300;E.pxSize.value=p.export.px||4000;E.embedSRGB.checked=!!p.export.srgb;E.mmSize.value=p.export.mm||100;E.squareLock.checked=(p.export.lock!==false);}
+  lastChanged='mm'; syncFromMM(); needsCenter=true; render();
+}
+
+// Exporters (PNG with pHYs/sRGB, SVG paths)
+function u32(n){return new Uint8Array([(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255])}
+function crc32(buf){let c=0xffffffff;for(let n=0;n<buf.length;n++){c^=buf[n];for(let k=0;k<8;k++){c=(c>>>1)^(0xedb88320&-(c&1));}}return (c^0xffffffff)>>>0}
+function chunk(type, data){const t=new TextEncoder().encode(type); const length=u32(data.length); const crc=u32(crc32(new Uint8Array([...t,...data]))); return new Uint8Array([...length,...t,...data,...crc]);}
+
+async function exportPNG(){
+  const px=Math.max(500, Math.min(16000, +E.pxSize.value||4000));
+  const tmp=document.createElement('canvas'); tmp.width=px; tmp.height=px; const tctx=tmp.getContext('2d');
+  const scale=px/1000; tctx.scale(scale,scale);
+  if(E.bgMode.value!=='transparent'){ tctx.fillStyle=(E.bgMode.value==='white')?'#ffffff':'#000000'; tctx.fillRect(0,0,1000,1000); }
+  drawRing(tctx,450,E.outerC.value,+E.outerW.value,1);
+  drawRing(tctx,+E.innerR.value,'#111827',2,(+E.innerO.value)/100);
+  drawRing(tctx,+E.coreR.value,'#111827',2,(+E.coreO.value)/100);
+  function setFont2(s,w,f){tctx.font=`${w} ${s}px ${f}`;tctx.textBaseline='middle';tctx.textAlign='center'}
+  function drawText2(text,opt){
+    if(!text) return; function deg(d){return d*Math.PI/180}
+    function applyCase2(s,m){if(m==='upper')return s.toUpperCase();if(m==='lower')return s.toLowerCase();return s}
+    text=applyCase2(text,opt.caseMode||'keep'); setFont2(opt.size,opt.weight,opt.family);
+    tctx.lineJoin=E.strokeJoin.value; tctx.miterLimit=+E.miterLimit.value;
+    const chars=[...text];
+    const advances=chars.map(ch=>Math.max(0, tctx.measureText(ch).width*opt.scaleX + (ch===' '?opt.wordSpace:0) + opt.letterSpace));
+    const total=advances.reduce((a,b)=>a+b,0)||1;
+    const sweepC=Math.min(Math.max(opt.sweep,60),360)-0.1;
+    const arcLen=Math.abs(sweepC)*Math.PI/180*opt.radius;
+    const scale=(opt.fit==='fit')?(arcLen/total):1.0;
+    const dir=opt.clockwise?1:-1; const sweepRad=deg(Math.abs(sweepC))*dir;
+    let theta=deg(opt.start-(sweepC/2)); const arcPerUnit=sweepRad/total;
+    tctx.save(); tctx.translate(500,500);
+    for(let i=0;i<chars.length;i++){
+      const adv=advances[i]*scale; const aMid=theta+arcPerUnit*adv/2;
+      const x=Math.cos(aMid)*opt.radius, y=Math.sin(aMid)*opt.radius;
+      tctx.save(); tctx.translate(x,y);
+      let rot=aMid + (opt.clockwise?Math.PI/2:-Math.PI/2);
+      if(opt.upright){ let norm=((rot+Math.PI)%(2*Math.PI))-Math.PI; if(norm>Math.PI/2)rot-=Math.PI; if(norm<-Math.PI/2)rot+=Math.PI; }
+      tctx.rotate(rot);
+      const skew=Math.tan(deg(opt.skew)); tctx.transform(opt.scaleX,0,skew,1,0,0);
+      if(opt.strokeWidth>0){tctx.lineWidth=opt.strokeWidth;tctx.strokeStyle=opt.stroke;tctx.strokeText(chars[i],0,0)}
+      tctx.fillStyle=opt.fill; tctx.fillText(chars[i],0,0);
+      tctx.restore(); theta+=arcPerUnit*adv;
+    }
+    tctx.restore();
+  }
+  const start=+E.startAngle.value, sweep=+E.sweep.value;
+  const base=(i)=>({radius:+E['r'+i].value,fill:E[`t${i}_fill`].value,stroke:E[`t${i}_stroke`].value,strokeWidth:+E[`t${i}_sw`].value,letterSpace:+E[`t${i}_ls`].value,wordSpace:+E[`t${i}_ws`].value,scaleX:+E[`t${i}_sx`].value/100,skew:+E[`t${i}_skew`].value,upright:E[`t${i}_upright`].checked,size:+E[`t${i}_fs`].value,weight:E[`t${i}_fw`].value,family:E[`t${i}_ff`].value,fit:E[`t${i}_fit`].value,caseMode:E[`t${i}_case`].value});
+  drawText2(E.text1.value.trim(), Object.assign(base(1),{clockwise:E.dir1.value==='cw',start:start+(+E.t1_off.value),sweep}));
+  drawText2(E.text2.value.trim(), Object.assign(base(2),{clockwise:E.dir2.value==='cw',start:start+(+E.t2_off.value),sweep}));
+  drawText2(E.text3.value.trim(), Object.assign(base(3),{clockwise:true,start:start+(+E.t3_off.value),sweep}));
+  if(centerImage){const s=+E.centerSize.value; tctx.drawImage(centerImage,500-s/2,500-s/2,s,s);}
+  const gch=(+E.adj_gamma.value!=1 || +E.adj_sat.value!=1 || +E.adj_con.value!=1 || +E.adj_bri.value!=1);
+  if(gch){
+    const img=tctx.getImageData(0,0,px,px),d=img.data; const g=+E.adj_gamma.value,s=+E.adj_sat.value,c=+E.adj_con.value,b=+E.adj_bri.value; const wlR=0.2126,wlG=0.7152,wlB=0.0722;
+    for(let i=0;i<d.length;i+=4){
+      let r=d[i]/255,gr=d[i+1]/255,bl=d[i+2]/255;
+      r=Math.pow(r,2.2/g); gr=Math.pow(gr,2.2/g); bl=Math.pow(bl,2.2/g);
+      const lum=r*wlR+gr*wlG+bl*wlB;
+      r=lum+(r-lum)*s; gr=lum+(gr-lum)*s; bl=lum+(bl-lum)*s;
+      r=(r-0.5)*c+0.5; gr=(gr-0.5)*c+0.5; bl=(bl-0.5)*c+0.5;
+      r*=b; gr*=b; bl*=b;
+      d[i]=Math.max(0,Math.min(255,Math.round(r*255)));
+      d[i+1]=Math.max(0,Math.min(255,Math.round(gr*255)));
+      d[i+2]=Math.max(0,Math.min(255,Math.round(bl*255)));
+    }
+    tctx.putImageData(img,0,0);
+  }
+  const blob=await new Promise(res=>tmp.toBlob(res,'image/png')); const ab=await blob.arrayBuffer(); const u8=new Uint8Array(ab);
+  let insertPos=8,pos=8; while(pos<u8.length){const len=(u8[pos]<<24)|(u8[pos+1]<<16)|(u8[pos+2]<<8)|(u8[pos+3]);const type=String.fromCharCode(u8[pos+4],u8[pos+5],u8[pos+6],u8[pos+7]);const end=pos+12+len;if(type=='IHDR'){insertPos=end;break}pos=end}
+  const chunks=[]; const dpi=Math.max(72, Math.min(1200, +E.dpi.value||300)); const ppm=Math.round(dpi/0.0254); const phys=new Uint8Array(9); phys.set(u32(ppm),0); phys.set(u32(ppm),4); phys[8]=1; chunks.push(chunk('pHYs', phys));
+  if(E.embedSRGB.checked){ chunks.push(chunk('sRGB', new Uint8Array([0]))); const gAMA=new Uint8Array([0,0,177,7]); chunks.push(chunk('gAMA', gAMA));
+    const c=new Uint8Array([0,0,131,38,0,0,99,120,0,0,64,158,0,0,33,137,0,0,30,129,0,0,60,205,0,0,15,75,0,0,6,25]); chunks.push(chunk('cHRM', c)); }
+  const out=new Uint8Array(u8.length + chunks.reduce((a,b)=>a+b.length,0));
+  out.set(u8.slice(0,insertPos),0); let o=insertPos; chunks.forEach(ch=>{out.set(ch,o); o+=ch.length;}); out.set(u8.slice(insertPos),o);
+  const finalBlob=new Blob([out],{type:'image/png'}); const url=URL.createObjectURL(finalBlob); const a=document.createElement('a'); a.href=url; a.download=(E.projectName.value||'kreislogo')+'.png'; a.click(); URL.revokeObjectURL(url);
+}
+function exportSVG(){
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const start=+E.startAngle.value; const sweep=Math.min(+E.sweep.value,359.9);
+  function degToRad(d){return d*Math.PI/180}
+  function pathArc(r,startDeg,sweepDeg,cw){const dir=cw?1:-1; const s=degToRad(startDeg),e=degToRad(startDeg+dir*sweepDeg);
+    const sx=500+Math.cos(s)*r,sy=500+Math.sin(s)*r, ex=500+Math.cos(e)*r,ey=500+Math.sin(e)*r;
+    const large=sweepDeg>180?1:0; const sf=cw?1:0; return `M ${sx} ${sy} A ${r} ${r} 0 ${large} ${sf} ${ex} ${ey}`; }
+  function styleFor(i){const ff=E[`t${i}_ff`].value,fw=E[`t${i}_fw`].value,fs=E[`t${i}_fs`].value,fill=E[`t${i}_fill`].value,stroke=E[`t${i}_stroke`].value,sw=E[`t${i}_sw`].value;return `font-family:${ff};font-size:${fs}px;font-weight:${fw};fill:${fill};stroke:${stroke};stroke-width:${sw};stroke-linejoin:${E.strokeJoin.value};miter-limit:${E.miterLimit.value}`}
+  const p1=pathArc(+E.r1.value,start - sweep/2 + (+E.t1_off.value),sweep,E.dir1.value==='cw');
+  const p2=pathArc(+E.r2.value,start - sweep/2 + (+E.t2_off.value),sweep,E.dir2.value==='cw');
+  const p3=pathArc(+E.r3.value,start - sweep/2 + (+E.t3_off.value),sweep,true);
+  const bgRect = (E.bgMode.value==='transparent') ? '' : `<rect x="0" y="0" width="1000" height="1000" fill="${E.bgMode.value==='white'?'#fff':'#000'}"/>`;
+  const svg=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="340mm" height="340mm" viewBox="0 0 1000 1000">\n${bgRect}\n<defs>\n<path id="p1" d="${p1}"/>\n<path id="p2" d="${p2}"/>\n<path id="p3" d="${p3}"/>\n</defs>\n<g id="rings">\n<circle cx="500" cy="500" r="450" fill="none" stroke="${E.outerC.value}" stroke-width="${E.outerW.value}"/>\n<circle cx="500" cy="500" r="${E.innerR.value}" fill="none" stroke="#111827" stroke-opacity="${(+E.innerO.value)/100}" stroke-width="2"/>\n<circle cx="500" cy="500" r="${E.coreR.value}" fill="none" stroke="#111827" stroke-opacity="${(+E.coreO.value)/100}" stroke-width="2"/>\n</g>\n<g id="txt">\n<text style="${styleFor(1)}" dominant-baseline="middle" text-anchor="middle"><textPath href="#p1" startOffset="50%">${esc(E.text1.value)}</textPath></text>\n<text style="${styleFor(2)}" dominant-baseline="middle" text-anchor="middle"><textPath href="#p2" startOffset="50%">${esc(E.text2.value)}</textPath></text>\n<text style="${styleFor(3)}" dominant-baseline="middle" text-anchor="middle"><textPath href="#p3" startOffset="50%">${esc(E.text3.value||'')}</textPath></text>\n</g>\n</svg>`;
+  const blob=new Blob([svg],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(E.projectName.value||'kreislogo')+'.svg'; a.click(); URL.revokeObjectURL(url);
+}
+document.getElementById('btnPNG').addEventListener('click',exportPNG);document.getElementById('topPNG').addEventListener('click',exportPNG);
+document.getElementById('btnSVG').addEventListener('click',exportSVG);document.getElementById('topSVG').addEventListener('click',exportSVG);
+
+/* Initial */
+lastChanged='mm'; syncFromMM(); render();
+['input','change','keyup','compositionend'].forEach(ev=>document.addEventListener(ev,()=>{render(); if(E.autosave.checked) try{localStorage.setItem('kreislogo_pro_v537_autosave', JSON.stringify(serializeProject()));}catch(_){ } },{passive:true}));
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
+window.addEventListener('resize',()=>{needsCenter=true; render();});
+</script>
+</body>
+</html>
