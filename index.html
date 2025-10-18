@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kreislogo Pro v5.3.4 FINAL</title>
+<title>Kreislogo Pro v5.3.5 FINAL</title>
 <style>
 :root{--ink:#0f172a;--bg:#f1f5f9;--card:#fff;--muted:#64748b;--acc:#2563eb;--sb-track:#e2e8f0;--sb-thumb:#94a3b8}
 *{box-sizing:border-box}
@@ -24,9 +24,8 @@ button.ghost{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
 button.danger{border-color:#ef4444;color:#ef4444;background:#fff}
 
 /* Layout */
-.layout{display:grid;grid-template-columns:520px 1fr;gap:16px;padding:16px;min-height:calc(100vh - 120px);min-width:1080px;overflow:auto}
+.layout{display:grid;grid-template-columns:520px 1fr;gap:16px;padding:16px;min-height:calc(100vh - 120px);min-width:980px;overflow:auto}
 .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
-/* Left controls scroll independently */
 .controls{padding:12px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 140px);overflow:auto}
 .card{border:1px solid #e5e7eb;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .card h3{margin:0;font-size:14px}
@@ -42,15 +41,14 @@ hr.sep{border:none;border-top:1px solid #e5e7eb;margin:8px 0}
 details.adv{border:1px dashed #e5e7eb;border-radius:10px;padding:8px}
 details summary{cursor:pointer;font-weight:700;color:#0f172a}
 
-/* Preview: sticky + echte 2‑Achsen Scroll mit Auto‑Zentrierung */
+/* Preview */
 .preview{display:flex;flex-direction:column}
 .preview.sticky{position:sticky; top:72px; align-self:start; height:calc(100vh - 96px);}
-.preview-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #e5e7eb;background:#fff}
-.preview-toolbar .left{display:flex;gap:8px;align-items:center}
+.preview-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #e5e7eb;background:#fff;gap:8px;flex-wrap:wrap}
+.preview-toolbar .left{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .chip{background:#e2e8f0;color:#0f172a;padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px}
 .stage-wrap{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:14px;overflow:auto;min-width:0;min-height:0}
 .canvas-frame{position:relative;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;background:#fff;padding:10px}
-/* JS setzt explizite Breite/Höhe in px → horizontal/vertikal scrollbar */
 canvas{display:block}
 .preview-label{position:absolute;background:rgba(2,6,23,.85);color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;pointer-events:none}
 .pos-tr{top:10px;right:18px}.pos-tl{top:10px;left:18px}.pos-br{bottom:10px;right:18px}.pos-bl{bottom:10px;left:18px}
@@ -72,7 +70,7 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
 </head>
 <body class="scrollbar">
 <header class="appbar">
-  <div class="brand"><span class="dot"></span><h1>Kreislogo&nbsp;<span class="sub">Pro v5.3.4 FINAL</span></h1></div>
+  <div class="brand"><span class="dot"></span><h1>Kreislogo&nbsp;<span class="sub">Pro v5.3.5 FINAL</span></h1></div>
   <div class="app-actions">
     <input id="projectName" class="projname" value="Mein Kreislogo" placeholder="Projektname …">
     <button id="btnSaveProject" class="ghost">Projekt speichern</button>
@@ -115,7 +113,7 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
           </select>
         </label>
         <label>Vorschau-Zoom
-          <input id="zoom" type="range" min="50" max="200" value="120">
+          <input id="zoom" type="range" min="50" max="200" value="110">
         </label>
         <label>Autosave <input id="autosave" type="checkbox" checked></label>
       </div>
@@ -306,7 +304,14 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
 
   <section class="panel preview sticky scrollbar">
     <div class="preview-toolbar">
-      <div class="left"><span class="chip" id="chipSize">4000 px • 300 DPI</span><span class="chip" id="chipMode">Neutral</span></div>
+      <div class="left">
+        <span class="chip" id="chipSize">4000 px • 300 DPI</span>
+        <span class="chip" id="chipMode">Neutral</span>
+        <label class="chip" style="display:flex;gap:6px;align-items:center;">
+          <input id="autoFit" type="checkbox" checked>
+          Auto‑Fit
+        </label>
+      </div>
       <div class="right">
         <button id="btnCenter" class="ghost" title="Vorschau zentrieren">Zentrieren</button>
         <button id="topPNG" class="ghost">PNG</button>
@@ -345,7 +350,7 @@ const E={mode:$('#mode'),preset:$('#preset'),bgMode:$('#bgMode'),zoom:$('#zoom')
   btnPNG:$('#btnPNG'),btnSVG:$('#btnSVG'),topPNG:$('#topPNG'),topSVG:$('#topSVG'),
   btnSaveProject:$('#btnSaveProject'),btnLoadProject:$('#btnLoadProject'),loadProjectFile:$('#loadProjectFile'),projectName:$('#projectName'),btnReset:$('#btnReset'),
   frame:$('#frame'),canvas:$('#stage'),previewLabelBox:$('#previewLabelBox'),hb:$('#hb'),
-  stageWrap:$('#stageWrap'),btnCenter:$('#btnCenter')
+  stageWrap:$('#stageWrap'),btnCenter:$('#btnCenter'),autoFit:$('#autoFit')
 };
 const ctx=E.canvas.getContext('2d',{alpha:true}); let centerImage=null;
 
@@ -437,7 +442,21 @@ function processAdjustments(ctx){
 let needsCenter=true;
 function resizePreview(){
   const z=Math.max(0.5, Math.min(2.0, +E.zoom.value/100));
-  const px = Math.round(1100 * z); // Basis > Container → horizontale Scrollbar
+  let px = Math.round(1000 * z); // Basisgröße
+  const sw = E.stageWrap;
+
+  if (E.autoFit.checked && sw) {
+    // Abzug: stage-wrap padding (2*14) + frame padding (2*10)
+    const PAD = 14*2 + 10*2;
+    const maxW = Math.max(260, sw.clientWidth  - PAD);
+    const maxH = Math.max(260, sw.clientHeight - PAD);
+    const fit = Math.floor(Math.min(maxW, maxH));
+    px = Math.min(px, fit);
+  } else {
+    // Nicht Auto‑Fit → größer als View erzwingen, damit Scrollbalken erscheinen
+    px = Math.max(px, (sw?.clientWidth||800) + 200);
+  }
+
   // Canvas skaliert als UI-Preview (1000x1000 intern)
   E.canvas.style.width = px + 'px';
   E.canvas.style.height = px + 'px';
@@ -448,7 +467,6 @@ function resizePreview(){
 }
 
 function centerView(){
-  // Zentriert den Frame in der Stage-Viewport
   const sw = E.stageWrap;
   const contentW = E.frame.offsetWidth;
   const contentH = E.frame.offsetHeight;
@@ -461,7 +479,6 @@ function centerView(){
 }
 function centerIfNeeded(){
   if(!needsCenter) return;
-  // Nach Layout-Tick messen
   requestAnimationFrame(()=>{
     centerView();
     needsCenter=false;
@@ -530,15 +547,18 @@ E.mode.addEventListener('change',()=>{
 });
 
 /* Button: Vorschau zentrieren (manuell) */
-E.btnCenter.addEventListener('click',()=>{needsCenter=true; centerIfNeeded();});
+document.getElementById('btnCenter').addEventListener('click',()=>{needsCenter=true; centerIfNeeded();});
+
+/* Auto‑Fit Toggle */
+E.autoFit.addEventListener('change',()=>{needsCenter=true; render();});
 
 // Auto-Zentrierung bei Fenstergröße ändern
 window.addEventListener('resize',()=>{needsCenter=true; centerIfNeeded();});
 
 // Autosave
-const AUTOKEY='kreislogo_pro_v534_autosave';
-function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.4-final'},
-  ui:{mode:E.mode.value,preset:E.preset.value,bg:E.bgMode.value,zoom:+E.zoom.value,autosave:E.autosave.checked,pip:E.pipToggle.checked,pipSize:+E.pipSize.value},
+const AUTOKEY='kreislogo_pro_v535_autosave';
+function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.5-final'},
+  ui:{mode:E.mode.value,preset:E.preset.value,bg:E.bgMode.value,zoom:+E.zoom.value,autosave:E.autosave.checked,pip:E.pipToggle.checked,pipSize:+E.pipSize.value,autoFit:E.autoFit.checked},
   start:+E.startAngle.value,sweep:+E.sweep.value,texts:[E.text1.value,E.text2.value,E.text3.value],radii:[+E.r1.value,+E.r2.value,+E.r3.value],dirs:[E.dir1.value,E.dir2.value],
   t1:{fs:+E.t1_fs.value,fw:E.t1_fw.value,ff:E.t1_ff.value,fill:E.t1_fill.value,stroke:E.t1_stroke.value,sw:+E.t1_sw.value,ls:+E.t1_ls.value,ws:+E.t1_ws.value,off:+E.t1_off.value,sx:+E.t1_sx.value,skew:+E.t1_skew.value,upr:E.t1_upright.checked,fit:E.t1_fit.value,case:E.t1_case.value},
   t2:{fs:+E.t2_fs.value,fw:E.t2_fw.value,ff:E.t2_ff.value,fill:E.t2_fill.value,stroke:E.t2_stroke.value,sw:+E.t2_sw.value,ls:+E.t2_ls.value,ws:+E.t2_ws.value,off:+E.t2_off.value,sx:+E.t2_sx.value,skew:+E.t2_skew.value,upr:E.t2_upright.checked,fit:E.t2_fit.value,case:E.t2_case.value},
@@ -550,7 +570,7 @@ function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.4-f
 };}
 function applyProject(p){
   E.projectName.value=p.meta?.name||'Kreislogo';
-  if(p.ui){E.mode.value=p.ui.mode||'neutral';E.preset.value=p.ui.preset||'none';E.bgMode.value=p.ui.bg||'transparent';E.zoom.value=p.ui.zoom||120;E.autosave.checked=!!p.ui.autosave;E.pipToggle.checked=!!p.ui.pip;E.pipSize.value=p.ui.pipSize||260;}
+  if(p.ui){E.mode.value=p.ui.mode||'neutral';E.preset.value=p.ui.preset||'none';E.bgMode.value=p.ui.bg||'transparent';E.zoom.value=p.ui.zoom||110;E.autosave.checked=!!p.ui.autosave;E.pipToggle.checked=!!p.ui.pip;E.pipSize.value=p.ui.pipSize||260;E.autoFit.checked=(p.ui.autoFit!==false);}
   E.startAngle.value=p.start??12; E.sweep.value=p.sweep??360;
   [E.text1.value,E.text2.value,E.text3.value]=p.texts||['','',''];
   [E.r1.value,E.r2.value,E.r3.value]=p.radii||[390,390,260];
@@ -641,6 +661,7 @@ async function exportPNG(){
 function exportSVG(){
   const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const start=+E.startAngle.value; const sweep=Math.min(+E.sweep.value,359.9);
+  function degToRad(d){return d*Math.PI/180}
   function pathArc(r,startDeg,sweepDeg,cw){const dir=cw?1:-1; const s=degToRad(startDeg),e=degToRad(startDeg+dir*sweepDeg);
     const sx=500+Math.cos(s)*r,sy=500+Math.sin(s)*r, ex=500+Math.cos(e)*r,ey=500+Math.sin(e)*r;
     const large=sweepDeg>180?1:0; const sf=cw?1:0; return `M ${sx} ${sy} A ${r} ${r} 0 ${large} ${sf} ${ex} ${ey}`; }
@@ -656,7 +677,6 @@ document.getElementById('btnPNG').addEventListener('click',exportPNG);document.g
 document.getElementById('btnSVG').addEventListener('click',exportSVG);document.getElementById('topSVG').addEventListener('click',exportSVG);
 
 render(); // initial
-// Eingabe-Events (Re-Render & Autosave)
 ['input','change','keyup','compositionend'].forEach(ev=>document.addEventListener(ev,()=>{render(); if(E.autosave.checked) saveAuto();},{passive:true}));
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
 </script>
