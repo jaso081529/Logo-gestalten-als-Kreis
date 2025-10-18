@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kreislogo Pro v5.3.5 FINAL</title>
+<title>Kreislogo Pro v5.3.6 FINAL</title>
 <style>
 :root{--ink:#0f172a;--bg:#f1f5f9;--card:#fff;--muted:#64748b;--acc:#2563eb;--sb-track:#e2e8f0;--sb-thumb:#94a3b8}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-/* Global scrollbar styling (WebKit + Firefox) */
+/* Global scrollbar styling */
 .scrollbar{scrollbar-width:thin;scrollbar-color:var(--sb-thumb) var(--sb-track)}
 .scrollbar::-webkit-scrollbar{height:12px;width:12px}
 .scrollbar::-webkit-scrollbar-thumb{background:var(--sb-thumb);border-radius:8px;border:2px solid var(--sb-track)}
@@ -22,6 +22,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 button{padding:10px 14px;border-radius:10px;border:1px solid #0f172a;background:#0f172a;color:#fff;cursor:pointer}
 button.ghost{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
 button.danger{border-color:#ef4444;color:#ef4444;background:#fff}
+button.icon{width:40px;height:40px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
 
 /* Layout */
 .layout{display:grid;grid-template-columns:520px 1fr;gap:16px;padding:16px;min-height:calc(100vh - 120px);min-width:980px;overflow:auto}
@@ -47,7 +48,9 @@ details summary{cursor:pointer;font-weight:700;color:#0f172a}
 .preview-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #e5e7eb;background:#fff;gap:8px;flex-wrap:wrap}
 .preview-toolbar .left{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .chip{background:#e2e8f0;color:#0f172a;padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px}
-.stage-wrap{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:14px;overflow:auto;min-width:0;min-height:0}
+.stage-wrap{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:14px;overflow:auto;min-width:0;min-height:0;cursor:grab;touch-action:none}
+.stage-wrap.centered{justify-content:center;align-items:center}
+.stage-wrap.dragging{cursor:grabbing}
 .canvas-frame{position:relative;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;background:#fff;padding:10px}
 canvas{display:block}
 .preview-label{position:absolute;background:rgba(2,6,23,.85);color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;pointer-events:none}
@@ -70,7 +73,7 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
 </head>
 <body class="scrollbar">
 <header class="appbar">
-  <div class="brand"><span class="dot"></span><h1>Kreislogo&nbsp;<span class="sub">Pro v5.3.5 FINAL</span></h1></div>
+  <div class="brand"><span class="dot"></span><h1>Kreislogo&nbsp;<span class="sub">Pro v5.3.6 FINAL</span></h1></div>
   <div class="app-actions">
     <input id="projectName" class="projname" value="Mein Kreislogo" placeholder="Projektname …">
     <button id="btnSaveProject" class="ghost">Projekt speichern</button>
@@ -113,7 +116,7 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
           </select>
         </label>
         <label>Vorschau-Zoom
-          <input id="zoom" type="range" min="50" max="200" value="110">
+          <input id="zoom" type="range" min="50" max="200" value="100">
         </label>
         <label>Autosave <input id="autosave" type="checkbox" checked></label>
       </div>
@@ -304,16 +307,20 @@ kbd{background:#f1f5f9;border:1px solid #e2e8f0;border-bottom-width:2px;border-r
 
   <section class="panel preview sticky scrollbar">
     <div class="preview-toolbar">
-      <div class="left">
+      <div class="left" style="gap:6px">
         <span class="chip" id="chipSize">4000 px • 300 DPI</span>
         <span class="chip" id="chipMode">Neutral</span>
         <label class="chip" style="display:flex;gap:6px;align-items:center;">
-          <input id="autoFit" type="checkbox" checked>
-          Auto‑Fit
+          <input id="autoFit" type="checkbox" checked> Fit ins Fenster
         </label>
       </div>
-      <div class="right">
-        <button id="btnCenter" class="ghost" title="Vorschau zentrieren">Zentrieren</button>
+      <div class="right" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <button id="btnZoomOut" class="icon ghost" title="Zoom -">−</button>
+        <button id="btnFit" class="ghost" title="Fit ins Fenster">Fit</button>
+        <button id="btn100" class="ghost" title="100%">100%</button>
+        <button id="btn200" class="ghost" title="200%">200%</button>
+        <button id="btnZoomIn" class="icon ghost" title="Zoom +">+</button>
+        <button id="btnCenter" class="ghost" title="Ansicht zentrieren">Reset</button>
         <button id="topPNG" class="ghost">PNG</button>
         <button id="topSVG" class="ghost">SVG</button>
       </div>
@@ -350,7 +357,8 @@ const E={mode:$('#mode'),preset:$('#preset'),bgMode:$('#bgMode'),zoom:$('#zoom')
   btnPNG:$('#btnPNG'),btnSVG:$('#btnSVG'),topPNG:$('#topPNG'),topSVG:$('#topSVG'),
   btnSaveProject:$('#btnSaveProject'),btnLoadProject:$('#btnLoadProject'),loadProjectFile:$('#loadProjectFile'),projectName:$('#projectName'),btnReset:$('#btnReset'),
   frame:$('#frame'),canvas:$('#stage'),previewLabelBox:$('#previewLabelBox'),hb:$('#hb'),
-  stageWrap:$('#stageWrap'),btnCenter:$('#btnCenter'),autoFit:$('#autoFit')
+  stageWrap:$('#stageWrap'),btnCenter:$('#btnCenter'),autoFit:$('#autoFit'),
+  btnZoomOut:$('#btnZoomOut'),btnZoomIn:$('#btnZoomIn'),btnFit:$('#btnFit'),btn100:$('#btn100'),btn200:$('#btn200')
 };
 const ctx=E.canvas.getContext('2d',{alpha:true}); let centerImage=null;
 
@@ -438,44 +446,44 @@ function processAdjustments(ctx){
   ctx.putImageData(img,0,0);
 }
 
-/* ---------- Größen/Scroll-Logik ---------- */
+/* ---------- Größen/Scroll/Center ---------- */
 let needsCenter=true;
+function updateCenterClass(){
+  const sw=E.stageWrap;
+  const contentW=E.frame.offsetWidth;
+  const contentH=E.frame.offsetHeight;
+  const viewW=sw.clientWidth;
+  const viewH=sw.clientHeight;
+  const shouldCenter = contentW <= viewW && contentH <= viewH;
+  sw.classList.toggle('centered', shouldCenter);
+}
 function resizePreview(){
   const z=Math.max(0.5, Math.min(2.0, +E.zoom.value/100));
-  let px = Math.round(1000 * z); // Basisgröße
+  let px = Math.round(1000 * z); // Basisskala
   const sw = E.stageWrap;
-
+  const PAD = 14*2 + 10*2; // stageWrap + frame padding
   if (E.autoFit.checked && sw) {
-    // Abzug: stage-wrap padding (2*14) + frame padding (2*10)
-    const PAD = 14*2 + 10*2;
     const maxW = Math.max(260, sw.clientWidth  - PAD);
     const maxH = Math.max(260, sw.clientHeight - PAD);
     const fit = Math.floor(Math.min(maxW, maxH));
     px = Math.min(px, fit);
-  } else {
-    // Nicht Auto‑Fit → größer als View erzwingen, damit Scrollbalken erscheinen
-    px = Math.max(px, (sw?.clientWidth||800) + 200);
   }
-
-  // Canvas skaliert als UI-Preview (1000x1000 intern)
+  // Anwenden
   E.canvas.style.width = px + 'px';
   E.canvas.style.height = px + 'px';
-  // Frame passt sich Canvas + Padding an
   E.frame.style.width  = (px + 20) + 'px';
   E.frame.style.height = (px + 20) + 'px';
-  needsCenter = true; // nach Größenwechsel neu zentrieren
+  updateCenterClass();
+  needsCenter = true;
 }
-
 function centerView(){
   const sw = E.stageWrap;
   const contentW = E.frame.offsetWidth;
   const contentH = E.frame.offsetHeight;
   const viewW = sw.clientWidth;
   const viewH = sw.clientHeight;
-  const targetLeft = Math.max(0, Math.round((contentW - viewW)/2));
-  const targetTop  = Math.max(0, Math.round((contentH - viewH)/2));
-  sw.scrollLeft = targetLeft;
-  sw.scrollTop  = targetTop;
+  sw.scrollLeft = Math.max(0, Math.round((contentW - viewW)/2));
+  sw.scrollTop  = Math.max(0, Math.round((contentH - viewH)/2));
 }
 function centerIfNeeded(){
   if(!needsCenter) return;
@@ -484,6 +492,50 @@ function centerIfNeeded(){
     needsCenter=false;
   });
 }
+
+/* ---------- Drag-to-pan (Maus & Touch) ---------- */
+let drag={active:false, x:0, y:0, sl:0, st:0, lastTap:0};
+function startDrag(clientX, clientY){
+  drag.active=true; drag.x=clientX; drag.y=clientY; drag.sl=E.stageWrap.scrollLeft; drag.st=E.stageWrap.scrollTop;
+  E.stageWrap.classList.add('dragging');
+}
+function moveDrag(clientX, clientY){
+  if(!drag.active) return;
+  const dx = clientX - drag.x;
+  const dy = clientY - drag.y;
+  E.stageWrap.scrollLeft = drag.sl - dx;
+  E.stageWrap.scrollTop  = drag.st - dy;
+}
+function endDrag(){
+  drag.active=false; E.stageWrap.classList.remove('dragging');
+}
+E.stageWrap.addEventListener('mousedown', e=>{ if(e.button!==0) return; startDrag(e.clientX,e.clientY); });
+window.addEventListener('mousemove', e=>moveDrag(e.clientX,e.clientY));
+window.addEventListener('mouseup', endDrag);
+E.stageWrap.addEventListener('mouseleave', endDrag);
+// Touch
+E.stageWrap.addEventListener('touchstart', e=>{
+  if(e.touches.length===1){ const t=e.touches[0]; startDrag(t.clientX,t.clientY); }
+  // Doppeltipp: Toggle Fit <-> 100%
+  const now=Date.now(); if(now-drag.lastTap<350){ E.autoFit.checked=!E.autoFit.checked; if(!E.autoFit.checked){E.zoom.value=100;} render(); }
+  drag.lastTap=now;
+},{passive:true});
+E.stageWrap.addEventListener('touchmove', e=>{ if(e.touches.length===1){ const t=e.touches[0]; moveDrag(t.clientX,t.clientY); e.preventDefault(); } }, {passive:false});
+E.stageWrap.addEventListener('touchend', endDrag);
+
+/* ---------- Wheel Zoom (Ctrl/⌘ + Rad/Pinch) ---------- */
+E.stageWrap.addEventListener('wheel', e=>{
+  if(e.ctrlKey || e.metaKey){
+    e.preventDefault();
+    const dz = Math.sign(e.deltaY);
+    let z = +E.zoom.value;
+    z += (dz>0?-10:10);
+    z = Math.max(50, Math.min(200, z));
+    E.autoFit.checked = false;
+    E.zoom.value = z;
+    needsCenter=true; render();
+  }
+}, {passive:false});
 
 /* ---------- Render ---------- */
 function render(){
@@ -527,6 +579,15 @@ function render(){
   centerIfNeeded();
 }
 
+/* --- Buttons --- */
+E.btnZoomOut.addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=Math.max(50, +E.zoom.value-10); needsCenter=true; render();});
+E.btnZoomIn .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=Math.min(200, +E.zoom.value+10); needsCenter=true; render();});
+E.btnFit    .addEventListener('click',()=>{E.autoFit.checked=true; needsCenter=true; render();});
+E.btn100    .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=100; needsCenter=true; render();});
+E.btn200    .addEventListener('click',()=>{E.autoFit.checked=false; E.zoom.value=200; needsCenter=true; render();});
+E.btnCenter .addEventListener('click',()=>{needsCenter=true; render();});
+
+/* --- Life cycle --- */
 window.addEventListener('pageshow', render);
 setInterval(render, 300);
 ['input','change','keyup','compositionend'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target && e.target.id){render(); if(E.autosave.checked) saveAuto();}},{passive:true}));
@@ -546,18 +607,9 @@ E.mode.addEventListener('change',()=>{
   render();
 });
 
-/* Button: Vorschau zentrieren (manuell) */
-document.getElementById('btnCenter').addEventListener('click',()=>{needsCenter=true; centerIfNeeded();});
-
-/* Auto‑Fit Toggle */
-E.autoFit.addEventListener('change',()=>{needsCenter=true; render();});
-
-// Auto-Zentrierung bei Fenstergröße ändern
-window.addEventListener('resize',()=>{needsCenter=true; centerIfNeeded();});
-
 // Autosave
-const AUTOKEY='kreislogo_pro_v535_autosave';
-function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.5-final'},
+const AUTOKEY='kreislogo_pro_v536_autosave';
+function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.6-final'},
   ui:{mode:E.mode.value,preset:E.preset.value,bg:E.bgMode.value,zoom:+E.zoom.value,autosave:E.autosave.checked,pip:E.pipToggle.checked,pipSize:+E.pipSize.value,autoFit:E.autoFit.checked},
   start:+E.startAngle.value,sweep:+E.sweep.value,texts:[E.text1.value,E.text2.value,E.text3.value],radii:[+E.r1.value,+E.r2.value,+E.r3.value],dirs:[E.dir1.value,E.dir2.value],
   t1:{fs:+E.t1_fs.value,fw:E.t1_fw.value,ff:E.t1_ff.value,fill:E.t1_fill.value,stroke:E.t1_stroke.value,sw:+E.t1_sw.value,ls:+E.t1_ls.value,ws:+E.t1_ws.value,off:+E.t1_off.value,sx:+E.t1_sx.value,skew:+E.t1_skew.value,upr:E.t1_upright.checked,fit:E.t1_fit.value,case:E.t1_case.value},
@@ -570,7 +622,7 @@ function serializeProject(){return {meta:{name:E.projectName.value,ver:'v5.3.5-f
 };}
 function applyProject(p){
   E.projectName.value=p.meta?.name||'Kreislogo';
-  if(p.ui){E.mode.value=p.ui.mode||'neutral';E.preset.value=p.ui.preset||'none';E.bgMode.value=p.ui.bg||'transparent';E.zoom.value=p.ui.zoom||110;E.autosave.checked=!!p.ui.autosave;E.pipToggle.checked=!!p.ui.pip;E.pipSize.value=p.ui.pipSize||260;E.autoFit.checked=(p.ui.autoFit!==false);}
+  if(p.ui){E.mode.value=p.ui.mode||'neutral';E.preset.value=p.ui.preset||'none';E.bgMode.value=p.ui.bg||'transparent';E.zoom.value=p.ui.zoom||100;E.autosave.checked=!!p.ui.autosave;E.pipToggle.checked=!!p.ui.pip;E.pipSize.value=p.ui.pipSize||260;E.autoFit.checked=(p.ui.autoFit!==false);}
   E.startAngle.value=p.start??12; E.sweep.value=p.sweep??360;
   [E.text1.value,E.text2.value,E.text3.value]=p.texts||['','',''];
   [E.r1.value,E.r2.value,E.r3.value]=p.radii||[390,390,260];
@@ -679,6 +731,7 @@ document.getElementById('btnSVG').addEventListener('click',exportSVG);document.g
 render(); // initial
 ['input','change','keyup','compositionend'].forEach(ev=>document.addEventListener(ev,()=>{render(); if(E.autosave.checked) saveAuto();},{passive:true}));
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
+window.addEventListener('resize',()=>{needsCenter=true; render();});
 </script>
 </body>
 </html>
